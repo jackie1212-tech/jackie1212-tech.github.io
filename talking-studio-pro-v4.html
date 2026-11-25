@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Talking Studio Pro</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface-hover: #273549;
+    --border: rgba(255, 255, 255, 0.12);
+    --primary: #3b82f6;
+    --primary-hover: #2563eb;
+    --accent: #8b5cf6;
+    --success: #10b981;
+    --danger: #ef4444;
+    --text: #f8fafc;
+    --text-muted: #94a3b8;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: rgba(30, 41, 59, 0.92);
+    border-bottom: 1px solid var(--border);
+    z-index: 20;
+    flex-shrink: 0;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .badge-model {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 99px;
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .badge-model.warn {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .icon-btn {
+    background: var(--surface-hover);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 8px 11px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .icon-btn:active {
+    transform: scale(0.96);
+  }
+
+  /* Bannière Clé API directe */
+  .api-banner {
+    background: #172033;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .api-banner.hidden {
+    display: none;
+  }
+
+  .api-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .api-row input, .api-row select {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    min-width: 0;
+  }
+
+  .btn-save-key {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 9px 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .btn-test-key {
+    background: var(--surface-hover);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .api-status {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* Navigation Onglets */
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 11px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+  }
+
+  .tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+    background: rgba(59, 130, 246, 0.08);
+  }
+
+  /* Vues */
+  .view {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .view.active {
+    display: flex;
+  }
+
+  /* Avatar Section */
+  .avatar-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 16px 8px;
+    flex-shrink: 0;
+  }
+
+  .avatar-circle {
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #3b82f6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 24px rgba(59, 130, 246, 0.35);
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .avatar-circle.listening {
+    box-shadow: 0 0 28px rgba(239, 68, 68, 0.65);
+    background: linear-gradient(135deg, #ef4444, #f97316);
+  }
+
+  .avatar-circle.speaking {
+    box-shadow: 0 0 28px rgba(16, 185, 129, 0.6);
+  }
+
+  .eyes {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 8px;
+  }
+
+  .eye {
+    width: 11px;
+    height: 11px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pupil {
+    width: 5px;
+    height: 5px;
+    background: #0f172a;
+    border-radius: 50%;
+  }
+
+  .mouth {
+    width: 22px;
+    height: 6px;
+    background: #0f172a;
+    border-radius: 10px;
+    transition: height 0.1s;
+  }
+
+  .avatar-circle.speaking .mouth {
+    animation: talk 0.28s infinite alternate;
+  }
+
+  @keyframes talk {
+    from { height: 5px; width: 20px; }
+    to { height: 15px; width: 16px; border-radius: 50%; }
+  }
+
+  .avatar-status {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* Chat Messages */
+  .chat-box {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .msg {
+    max-width: 88%;
+    padding: 12px 14px;
+    border-radius: 16px;
+    font-size: 14.5px;
+    line-height: 1.5;
+    word-wrap: break-word;
+  }
+
+  .msg.user {
+    align-self: flex-end;
+    background: var(--primary);
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+
+  .msg.ai {
+    align-self: flex-start;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-bottom-left-radius: 4px;
+  }
+
+  .msg-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .choice-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-choice {
+    padding: 6px 11px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+  }
+
+  .btn-choice.save {
+    background: rgba(16, 185, 129, 0.16);
+    color: #34d399;
+    border-color: rgba(16, 185, 129, 0.35);
+  }
+
+  .btn-choice.skip {
+    background: rgba(148, 163, 184, 0.12);
+    color: var(--text-muted);
+  }
+
+  .choice-done {
+    font-size: 12px;
+    color: #34d399;
+    margin-top: 8px;
+    font-weight: 500;
+  }
+
+  /* Input Zone */
+  .input-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .mic-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: var(--surface-hover);
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .mic-btn.active {
+    background: var(--danger);
+  }
+
+  .input-bar input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 11px 14px;
+    border-radius: 22px;
+    font-size: 14.5px;
+    min-width: 0;
+  }
+
+  .send-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: var(--primary);
+    color: white;
+    font-size: 17px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* Bloc-Notes */
+  .notes-toolbar {
+    padding: 12px 16px;
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .notes-toolbar input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    min-width: 0;
+  }
+
+  .notes-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .note-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+
+  .note-card h4 {
+    font-size: 15px;
+    margin-bottom: 6px;
+    color: #93c5fd;
+  }
+
+  .note-card p {
+    font-size: 13.5px;
+    color: var(--text);
+    line-height: 1.45;
+    white-space: pre-wrap;
+    margin-bottom: 10px;
+  }
+
+  .note-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11.5px;
+    color: var(--text-muted);
+  }
+
+  .note-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .note-actions button {
+    background: var(--surface-hover);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 5px 9px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  /* Modal simple et fiable */
+  .modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.72);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .modal-backdrop.open {
+    display: flex;
+  }
+
+  .modal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 420px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .modal-card h3 {
+    font-size: 16px;
+  }
+
+  .modal-card input, .modal-card textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+
+  .modal-card textarea {
+    height: 130px;
+    resize: vertical;
+  }
+
+  .modal-btns {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span>⚡ Talking Studio</span>
+    <span id="modelBadge" class="badge-model warn">Aucune clé</span>
+  </div>
+  <div class="header-actions">
+    <button type="button" class="icon-btn" id="btnToggleKey" title="Clé API & Voix">🔑 Clé</button>
+    <button type="button" class="icon-btn" id="btnMute" title="Son">🔊</button>
+    <button type="button" class="icon-btn" id="btnClear" title="Effacer">🗑️</button>
+  </div>
+</header>
+
+<!-- Panneau Clé API directement intégré dans le flux -->
+<div id="apiBanner" class="api-banner">
+  <div class="api-row">
+    <input type="text" id="apiKeyInput" placeholder="Collez votre clé Groq (gsk_...) ici">
+    <button type="button" class="btn-save-key" id="btnSaveKey">OK</button>
+    <button type="button" class="btn-test-key" id="btnTestKey">Tester</button>
+  </div>
+  <div class="api-row">
+    <select id="modelSelect">
+      <option value="auto">Modèle : Automatique</option>
+    </select>
+    <select id="voicePitch">
+      <option value="1">Voix : Normale</option>
+      <option value="1.3">Voix : Aiguë</option>
+      <option value="0.75">Voix : Grave</option>
+    </select>
+  </div>
+  <div id="apiStatus" class="api-status">Collez votre clé gsk_... puis appuyez sur OK.</div>
+</div>
+
+<div class="tabs">
+  <button type="button" class="tab-btn active" id="tabChat">🎙️ Assistant Vocal</button>
+  <button type="button" class="tab-btn" id="tabNotes">📒 Bloc-Notes (<span id="noteCount">0</span>)</button>
+</div>
+
+<!-- Vue Assistant -->
+<div id="viewChat" class="view active">
+  <div class="avatar-zone">
+    <div id="avatar" class="avatar-circle">
+      <div class="eyes">
+        <div class="eye"><div class="pupil"></div></div>
+        <div class="eye"><div class="pupil"></div></div>
+      </div>
+      <div class="mouth"></div>
+    </div>
+    <div id="avatarStatus" class="avatar-status">Prêt à vous écouter</div>
+  </div>
+
+  <div id="chatBox" class="chat-box">
+    <div class="msg ai">Bonjour ! Posez-moi votre question au micro ou par écrit.</div>
+  </div>
+
+  <div class="input-bar">
+    <button type="button" class="mic-btn" id="btnMic">🎤</button>
+    <input type="text" id="userInput" placeholder="Écrivez ou parlez...">
+    <button type="button" class="send-btn" id="btnSend">➤</button>
+  </div>
+</div>
+
+<!-- Vue Bloc-Notes -->
+<div id="viewNotes" class="view">
+  <div class="notes-toolbar">
+    <input type="text" id="searchNotes" placeholder="Rechercher une note...">
+    <button type="button" class="btn-save-key" id="btnNewNote">+ Note</button>
+  </div>
+  <div id="notesList" class="notes-list"></div>
+</div>
+
+<!-- Fenêtre de confirmation avant enregistrement -->
+<div id="saveModal" class="modal-backdrop">
+  <div class="modal-card">
+    <h3 id="modalTitle">Enregistrer dans le Bloc-Notes</h3>
+    <input type="text" id="noteTitleInput" placeholder="Titre de la note">
+    <textarea id="noteBodyInput" placeholder="Contenu de la note..."></textarea>
+    <div class="modal-btns">
+      <button type="button" class="btn-test-key" id="btnCancelModal">Ne pas enregistrer</button>
+      <button type="button" class="btn-save-key" id="btnConfirmModal">✅ Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // Stockage sécurisé
+  function getStore(k, def) {
+    try { return localStorage.getItem(k) || def; } catch(e) { return def; }
+  }
+  function setStore(k, v) {
+    try { localStorage.setItem(k, v); } catch(e) {}
+  }
+
+  // Éléments DOM
+  const apiBanner = document.getElementById('apiBanner');
+  const btnToggleKey = document.getElementById('btnToggleKey');
+  const apiKeyInput = document.getElementById('apiKeyInput');
+  const btnSaveKey = document.getElementById('btnSaveKey');
+  const btnTestKey = document.getElementById('btnTestKey');
+  const apiStatus = document.getElementById('apiStatus');
+  const modelBadge = document.getElementById('modelBadge');
+  const modelSelect = document.getElementById('modelSelect');
+  const voicePitch = document.getElementById('voicePitch');
+
+  const tabChat = document.getElementById('tabChat');
+  const tabNotes = document.getElementById('tabNotes');
+  const viewChat = document.getElementById('viewChat');
+  const viewNotes = document.getElementById('viewNotes');
+
+  const avatar = document.getElementById('avatar');
+  const avatarStatus = document.getElementById('avatarStatus');
+  const chatBox = document.getElementById('chatBox');
+  const userInput = document.getElementById('userInput');
+  const btnSend = document.getElementById('btnSend');
+  const btnMic = document.getElementById('btnMic');
+  const btnMute = document.getElementById('btnMute');
+  const btnClear = document.getElementById('btnClear');
+
+  const notesList = document.getElementById('notesList');
+  const noteCount = document.getElementById('noteCount');
+  const searchNotes = document.getElementById('searchNotes');
+  const btnNewNote = document.getElementById('btnNewNote');
+
+  const saveModal = document.getElementById('saveModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const noteTitleInput = document.getElementById('noteTitleInput');
+  const noteBodyInput = document.getElementById('noteBodyInput');
+  const btnCancelModal = document.getElementById('btnCancelModal');
+  const btnConfirmModal = document.getElementById('btnConfirmModal');
+
+  let apiKey = getStore('groq_api_key', '');
+  let activeModel = getStore('groq_model', '');
+  let availableModels = [];
+  let isMuted = false;
+  let history = [];
+  let notes = [];
+  let editingNoteId = null;
+  let pendingChoiceContainer = null;
+
+  try {
+    notes = JSON.parse(getStore('talking_notes', '[]'));
+  } catch(e) {
+    notes = [];
+  }
+
+  // Initialisation Clé API
+  if (apiKey) {
+    apiKeyInput.value = apiKey;
+    apiBanner.classList.add('hidden');
+    modelBadge.textContent = activeModel ? activeModel.split('/').pop() : 'Clé prête';
+    modelBadge.classList.remove('warn');
+    fetchModels(apiKey, true);
+  }
+
+  // Bouton Clé en haut à droite : ouvre/ferme le panneau
+  btnToggleKey.onclick = function() {
+    apiBanner.classList.toggle('hidden');
+    if (!apiBanner.classList.contains('hidden')) {
+      apiKeyInput.focus();
+    }
+  };
+
+  btnSaveKey.onclick = function() {
+    const val = apiKeyInput.value.trim();
+    if (!val) {
+      apiStatus.textContent = "⚠️ Veuillez coller une clé commençant par gsk_...";
+      return;
+    }
+    apiKey = val;
+    setStore('groq_api_key', apiKey);
+    apiStatus.textContent = "Vérification des modèles...";
+    fetchModels(apiKey, false);
+  };
+
+  btnTestKey.onclick = async function() {
+    const val = apiKeyInput.value.trim() || apiKey;
+    if (!val) {
+      apiStatus.textContent = "⚠️ Entrez d'abord votre clé gsk_...";
+      return;
+    }
+    apiStatus.textContent = "Test de connexion en cours...";
+    try {
+      const t0 = performance.now();
+      const models = await fetchModels(val, true);
+      const mdl = models[0] || 'llama-3.3-70b-versatile';
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + val,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: mdl,
+          messages: [{ role: 'user', content: 'Réponds juste OK.' }],
+          max_tokens: 10
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || 'Erreur API');
+      const sec = ((performance.now() - t0) / 1000).toFixed(2);
+      apiStatus.textContent = "✅ Connecté en " + sec + "s (" + mdl + ")";
+      apiStatus.style.color = "#34d399";
+    } catch(err) {
+      apiStatus.textContent = "❌ " + err.message;
+      apiStatus.style.color = "#f87171";
+    }
+  };
+
+  async function fetchModels(key, silent) {
+    try {
+      const res = await fetch('https://api.groq.com/openai/v1/models', {
+        headers: { 'Authorization': 'Bearer ' + key }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || 'Clé invalide');
+      const list = (data.data || [])
+        .map(m => m.id)
+        .filter(id => !id.includes('whisper') && !id.includes('guard') && !id.includes('tts'));
+      availableModels = list.length ? list : ['llama-3.3-70b-versatile'];
+
+      modelSelect.innerHTML = '<option value="auto">Modèle : Auto (' + availableModels[0].split('/').pop() + ')</option>';
+      availableModels.forEach(id => {
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = id;
+        modelSelect.appendChild(opt);
+      });
+
+      if (!activeModel || !availableModels.includes(activeModel)) {
+        activeModel = availableModels[0];
+        setStore('groq_model', activeModel);
+      }
+      modelBadge.textContent = activeModel.split('/').pop();
+      modelBadge.classList.remove('warn');
+
+      if (!silent) {
+        apiStatus.textContent = "✅ Clé enregistrée ! Modèle actif : " + activeModel;
+        apiStatus.style.color = "#34d399";
+        setTimeout(() => apiBanner.classList.add('hidden'), 1200);
+      }
+      return availableModels;
+    } catch(err) {
+      if (!silent) {
+        apiStatus.textContent = "❌ " + err.message;
+        apiStatus.style.color = "#f87171";
+      }
+      return [];
+    }
+  }
+
+  modelSelect.onchange = function() {
+    if (modelSelect.value !== 'auto') {
+      activeModel = modelSelect.value;
+      setStore('groq_model', activeModel);
+      modelBadge.textContent = activeModel.split('/').pop();
+    }
+  };
+
+  // Onglets
+  tabChat.onclick = function() {
+    tabChat.classList.add('active');
+    tabNotes.classList.remove('active');
+    viewChat.classList.add('active');
+    viewNotes.classList.remove('active');
+  };
+
+  tabNotes.onclick = function() {
+    tabNotes.classList.add('active');
+    tabChat.classList.remove('active');
+    viewNotes.classList.add('active');
+    viewChat.classList.remove('active');
+    renderNotes();
+  };
+
+  // Synthèse Vocale (TTS)
+  function speak(text) {
+    if (isMuted || !('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const clean = text.replace(/[*#_`]/g, '');
+    const utter = new SpeechSynthesisUtterance(clean);
+    utter.lang = 'fr-FR';
+    utter.pitch = parseFloat(voicePitch.value) || 1;
+    utter.onstart = () => {
+      avatar.classList.add('speaking');
+      avatarStatus.textContent = "En train de parler...";
+    };
+    utter.onend = () => {
+      avatar.classList.remove('speaking');
+      avatarStatus.textContent = "Prêt à vous écouter";
+    };
+    utter.onerror = () => {
+      avatar.classList.remove('speaking');
+      avatarStatus.textContent = "Prêt à vous écouter";
+    };
+    window.speechSynthesis.speak(utter);
+  }
+
+  btnMute.onclick = function() {
+    isMuted = !isMuted;
+    btnMute.textContent = isMuted ? '🔇' : '🔊';
+    if (isMuted && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      avatar.classList.remove('speaking');
+    }
+  };
+
+  btnClear.onclick = function() {
+    history = [];
+    chatBox.innerHTML = '<div class="msg ai">Conversation effacée. Posez-moi une nouvelle question !</div>';
+  };
+
+  // Reconnaissance Vocale (STT)
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let isListening = false;
+
+  btnMic.onclick = function() {
+    if (!SpeechRecognition) {
+      alert("La reconnaissance vocale n'est pas supportée sur ce navigateur.");
+      return;
+    }
+    if (isListening) return;
+
+    const rec = new SpeechRecognition();
+    rec.lang = 'fr-FR';
+    rec.interimResults = false;
+    rec.maxAlternatives = 1;
+
+    rec.onstart = function() {
+      isListening = true;
+      btnMic.classList.add('active');
+      avatar.classList.add('listening');
+      avatarStatus.textContent = "Je vous écoute...";
+    };
+
+    rec.onresult = function(e) {
+      const transcript = e.results[0][0].transcript;
+      userInput.value = transcript;
+      sendMessage();
+    };
+
+    rec.onerror = function(e) {
+      avatarStatus.textContent = "Micro : " + e.error;
+    };
+
+    rec.onend = function() {
+      isListening = false;
+      btnMic.classList.remove('active');
+      avatar.classList.remove('listening');
+      if (!avatar.classList.contains('speaking')) {
+        avatarStatus.textContent = "Prêt à vous écouter";
+      }
+    };
+
+    try { rec.start(); } catch(e) {}
+  };
+
+  // Envoi Question IA
+  btnSend.onclick = sendMessage;
+  userInput.onkeydown = function(e) {
+    if (e.key === 'Enter') sendMessage();
+  };
+
+  async function sendMessage() {
+    const question = userInput.value.trim();
+    if (!question) return;
+
+    if (!apiKey) {
+      apiBanner.classList.remove('hidden');
+      apiStatus.textContent = "⚠️ Collez votre clé Groq (gsk_...) et cliquez sur OK avant de poser une question.";
+      apiStatus.style.color = "#f87171";
+      apiKeyInput.focus();
+      return;
+    }
+
+    userInput.value = '';
+    appendUserMsg(question);
+
+    const aiMsgDiv = document.createElement('div');
+    aiMsgDiv.className = 'msg ai';
+    aiMsgDiv.textContent = 'Réflexion...';
+    chatBox.appendChild(aiMsgDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+    avatarStatus.textContent = "Réflexion en cours...";
+
+    const t0 = performance.now();
+    const modelsToTry = modelSelect.value !== 'auto'
+      ? [modelSelect.value]
+      : (availableModels.length ? availableModels : ['llama-3.3-70b-versatile', 'openai/gpt-oss-20b']);
+
+    let reply = null;
+    let usedModel = '';
+    let lastError = '';
+
+    history.push({ role: 'user', content: question });
+    const recentHistory = history.slice(-6);
+
+    for (const mdl of modelsToTry) {
+      try {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + apiKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: mdl,
+            messages: [
+              { role: 'system', content: 'Tu es un assistant vocal utile, clair et concis en français. Réponds en 3 à 5 phrases maximum.' },
+              ...recentHistory
+            ],
+            temperature: 0.6,
+            max_tokens: 400
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error?.message || 'Erreur modèle');
+        reply = data.choices[0].message.content.trim();
+        usedModel = mdl;
+        break;
+      } catch(err) {
+        lastError = err.message;
+      }
+    }
+
+    if (!reply) {
+      aiMsgDiv.textContent = "❌ Erreur : " + lastError;
+      avatarStatus.textContent = "Erreur de connexion";
+      return;
+    }
+
+    const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
+    history.push({ role: 'assistant', content: reply });
+
+    // Affichage réponse + Choix d'enregistrement explicite
+    aiMsgDiv.innerHTML = '';
+    const textNode = document.createElement('div');
+    textNode.textContent = reply;
+    aiMsgDiv.appendChild(textNode);
+
+    const meta = document.createElement('div');
+    meta.className = 'msg-meta';
+    meta.textContent = '⚡ ' + elapsed + 's • ' + usedModel.split('/').pop();
+    aiMsgDiv.appendChild(meta);
+
+    const choiceBar = document.createElement('div');
+    choiceBar.className = 'choice-bar';
+
+    const btnYes = document.createElement('button');
+    btnYes.type = 'button';
+    btnYes.className = 'btn-choice save';
+    btnYes.textContent = '📝 Enregistrer';
+    btnYes.onclick = function() {
+      openSaveModal(question, reply, null, choiceBar);
+    };
+
+    const btnNo = document.createElement('button');
+    btnNo.type = 'button';
+    btnNo.className = 'btn-choice skip';
+    btnNo.textContent = '✖️ Ne pas enregistrer';
+    btnNo.onclick = function() {
+      choiceBar.innerHTML = '<span style="font-size:12px;color:var(--text-muted)">Non enregistrée</span>';
+    };
+
+    choiceBar.appendChild(btnYes);
+    choiceBar.appendChild(btnNo);
+    aiMsgDiv.appendChild(choiceBar);
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+    speak(reply);
+  }
+
+  function appendUserMsg(text) {
+    const div = document.createElement('div');
+    div.className = 'msg user';
+    div.textContent = text;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  // Gestion Modale Bloc-Notes
+  function openSaveModal(title, body, noteId, choiceContainer) {
+    editingNoteId = noteId;
+    pendingChoiceContainer = choiceContainer || null;
+    modalTitle.textContent = noteId ? 'Modifier la note' : 'Enregistrer dans le Bloc-Notes';
+    noteTitleInput.value = title;
+    noteBodyInput.value = body;
+    saveModal.classList.add('open');
+  }
+
+  btnCancelModal.onclick = function() {
+    saveModal.classList.remove('open');
+    editingNoteId = null;
+    pendingChoiceContainer = null;
+  };
+
+  btnConfirmModal.onclick = function() {
+    const title = noteTitleInput.value.trim() || 'Note sans titre';
+    const body = noteBodyInput.value.trim();
+    if (!body) return;
+
+    if (editingNoteId) {
+      const idx = notes.findIndex(n => n.id === editingNoteId);
+      if (idx !== -1) {
+        notes[idx].title = title;
+        notes[idx].body = body;
+      }
+    } else {
+      notes.unshift({
+        id: Date.now(),
+        title: title,
+        body: body,
+        date: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+      });
+    }
+
+    setStore('talking_notes', JSON.stringify(notes));
+    updateNoteCount();
+    renderNotes();
+
+    if (pendingChoiceContainer) {
+      pendingChoiceContainer.innerHTML = '<div class="choice-done">✅ Enregistrée dans le Bloc-Notes</div>';
+    }
+
+    saveModal.classList.remove('open');
+    editingNoteId = null;
+    pendingChoiceContainer = null;
+  };
+
+  btnNewNote.onclick = function() {
+    openSaveModal('', '', null, null);
+  };
+
+  searchNotes.oninput = renderNotes;
+
+  function updateNoteCount() {
+    noteCount.textContent = notes.length;
+  }
+
+  function renderNotes() {
+    updateNoteCount();
+    const q = searchNotes.value.trim().toLowerCase();
+    const filtered = notes.filter(n => n.title.toLowerCase().includes(q) || n.body.toLowerCase().includes(q));
+
+    if (!filtered.length) {
+      notesList.innerHTML = '<p style="text-align:center;color:var(--text-muted);margin-top:30px;">Aucune note enregistrée.</p>';
+      return;
+    }
+
+    notesList.innerHTML = '';
+    filtered.forEach(note => {
+      const card = document.createElement('div');
+      card.className = 'note-card';
+
+      const h4 = document.createElement('h4');
+      h4.textContent = note.title;
+
+      const p = document.createElement('p');
+      p.textContent = note.body;
+
+      const footer = document.createElement('div');
+      footer.className = 'note-footer';
+
+      const dateSpan = document.createElement('span');
+      dateSpan.textContent = note.date;
+
+      const actions = document.createElement('div');
+      actions.className = 'note-actions';
+
+      const bRead = document.createElement('button');
+      bRead.textContent = '🔊';
+      bRead.onclick = () => speak(note.body);
+
+      const bEdit = document.createElement('button');
+      bEdit.textContent = '✏️';
+      bEdit.onclick = () => openSaveModal(note.title, note.body, note.id, null);
+
+      const bDel = document.createElement('button');
+      bDel.textContent = '🗑️';
+      bDel.onclick = () => {
+        notes = notes.filter(n => n.id !== note.id);
+        setStore('talking_notes', JSON.stringify(notes));
+        renderNotes();
+      };
+
+      actions.append(bRead, bEdit, bDel);
+      footer.append(dateSpan, actions);
+      card.append(h4, p, footer);
+      notesList.appendChild(card);
+    });
+  }
+
+  updateNoteCount();
+})();
+</script>
+</body>
+</html>
